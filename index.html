@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시뮬레이션 뷰어</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 상단 바 -->
+    <header class="topbar" id="topbar" hidden>
+        <div class="topbar-left">
+            <div class="brand">
+                <span class="brand-mark">🧪</span>
+                <span class="brand-name">시뮬레이션 뷰어</span>
+            </div>
+            <div class="stats" id="stats"></div>
+        </div>
+        <div class="topbar-right">
+            <div class="search-wrap">
+                <span class="search-ico">🔍</span>
+                <input type="search" id="search" class="search" placeholder="제목·요청·응답 검색…" autocomplete="off">
+            </div>
+            <button class="icon-btn" id="themeBtn" title="테마 전환">🌙</button>
+            <button class="icon-btn" id="reopenBtn" title="다른 백업 열기">📂</button>
+        </div>
+    </header>
+
+    <!-- 업로드 화면 -->
+    <section class="landing" id="landing">
+        <div class="landing-inner">
+            <div class="landing-mark">🧪</div>
+            <h1 class="landing-title">시뮬레이션 뷰어</h1>
+            <p class="landing-sub">시뮬레이션 매니저에서 내보낸 백업 JSON을 열어 내 시뮬레이션을 깔끔하게 읽어보세요.</p>
+
+            <label class="drop" id="drop">
+                <input type="file" id="file" accept=".json,application/json" hidden>
+                <div class="drop-ico">📥</div>
+                <div class="drop-main">백업 파일을 클릭하거나 여기로 끌어다 놓기</div>
+                <div class="drop-sub"><code>sim-manager-backup_….json</code></div>
+            </label>
+
+            <div class="landing-err" id="landingErr" hidden></div>
+        </div>
+    </section>
+
+    <!-- 메인 -->
+    <main class="layout" id="layout" hidden>
+        <!-- 사이드바: 채팅방 목록 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-head">채팅방</div>
+            <nav class="room-list" id="roomList"></nav>
+        </aside>
+
+        <!-- 콘텐츠 -->
+        <section class="content" id="content">
+            <!-- 시뮬 목록 또는 상세가 여기에 렌더됨 -->
+        </section>
+    </main>
+
+    <div class="toast" id="toast" hidden></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

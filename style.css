@@ -344,7 +344,39 @@ code { font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace; font-si
     gap: 10px;
     margin-bottom: 14px;
 }
+.resp-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 .resp-nav { display: flex; align-items: center; gap: 8px; }
+
+/* 원문/번역 토글 */
+.trans-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-dim);
+    font: inherit; font-size: 12.5px; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.trans-toggle:hover { background: var(--surface-2); color: var(--text); border-color: var(--accent); }
+.trans-toggle.on {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+/* 번역 없는 파트 안내 */
+.trans-note {
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    color: var(--text-faint);
+    margin-bottom: 8px;
+    padding: 4px 10px;
+    background: var(--surface-2);
+    border-radius: 7px;
+    display: inline-block;
+}
 .swipe-btn {
     width: 32px; height: 32px;
     border: 1px solid var(--border);

@@ -14,6 +14,7 @@ const S = {
     simId: null,
     respIdx: 0,
     query: '',
+    showTrans: false,  // 읽기 뷰에서 번역 보기 토글
 };
 
 const ALL = '__all__';
@@ -53,10 +54,31 @@ function responseParts(sim, idx) {
     return [base, ...(Array.isArray(conts) ? conts : [])];
 }
 
-// 검색용 평문
+// 특정 파트의 번역문 (없으면 null). partTranslations[응답idx][파트idx]
+function partTranslation(sim, respIdx, partIdx) {
+    const t = sim?.partTranslations?.[String(respIdx)]?.[String(partIdx)];
+    return (typeof t === 'string' && t.trim()) ? t : null;
+}
+
+// 시뮬에 번역문이 하나라도 있는지
+function simHasTranslation(sim) {
+    const pt = sim?.partTranslations;
+    if (!pt || typeof pt !== 'object') return false;
+    return Object.values(pt).some(byPart =>
+        byPart && typeof byPart === 'object' &&
+        Object.values(byPart).some(v => typeof v === 'string' && v.trim()));
+}
+
+// 검색용 평문 (원문 + 번역문 모두 포함)
 function searchText(sim) {
     const parts = [simTitle(sim), sim.promptText || ''];
     (sim.responses || []).forEach((_, i) => parts.push(...responseParts(sim, i)));
+    const pt = sim?.partTranslations;
+    if (pt && typeof pt === 'object') {
+        for (const byPart of Object.values(pt)) {
+            if (byPart && typeof byPart === 'object') parts.push(...Object.values(byPart).filter(v => typeof v === 'string'));
+        }
+    }
     return parts.join('\n').toLowerCase();
 }
 
@@ -281,6 +303,7 @@ function renderList() {
             ${snippet ? `<div class="card-snippet">${escapeHtml(snippet)}</div>` : ''}
             <div class="card-foot">
                 <span class="badge">💬 응답 ${respCount}</span>
+                ${simHasTranslation(sim) ? `<span class="badge">🌐 번역</span>` : ''}
                 ${sim.createdAt ? `<span>${escapeHtml(fmtDate(sim.createdAt))}</span>` : ''}
             </div>
         </article>`;
@@ -300,6 +323,7 @@ function openSim(id) {
     const ci = entry.sim.currentIndex;
     const len = (entry.sim.responses || []).length;
     S.respIdx = (typeof ci === 'number' && ci >= 0 && ci < len) ? ci : 0;
+    S.showTrans = false; // 새 시뮬 열 땐 원문부터
     renderMain();
     $('content').scrollIntoView({ block: 'start' });
 }
@@ -320,14 +344,22 @@ function renderReader() {
     if (sim.swapCharUser) chips.push(`<span class="chip chip-accent">char↔user</span>`);
     if (sim.swapPronouns) chips.push(`<span class="chip chip-accent">대명사 교체</span>`);
 
+    const hasTrans = simHasTranslation(sim);
+
     let answerHtml;
     if (total === 0) {
         answerHtml = `<div class="empty"><div class="empty-ico">💭</div>저장된 응답이 없습니다.</div>`;
     } else {
         const parts = responseParts(sim, S.respIdx);
-        answerHtml = `<div class="answer">` + parts.map((p, i) =>
-            (i > 0 ? `<div class="part-divider">이어쓰기 파트 ${i + 1}</div>` : '') + mdToHtml(p || '')
-        ).join('') + `</div>`;
+        answerHtml = `<div class="answer">` + parts.map((p, i) => {
+            const trans = S.showTrans ? partTranslation(sim, S.respIdx, i) : null;
+            const text = trans !== null ? trans : (p || '');
+            const divider = i > 0 ? `<div class="part-divider">이어쓰기 파트 ${i + 1}</div>` : '';
+            // 번역 보기인데 이 파트엔 번역이 없으면 원문임을 표시
+            const note = (S.showTrans && trans === null && (p || '').trim())
+                ? `<div class="trans-note">이 파트는 번역이 없어 원문을 표시합니다</div>` : '';
+            return divider + note + mdToHtml(text);
+        }).join('') + `</div>`;
     }
 
     const swipe = total > 1 ? `
@@ -336,6 +368,11 @@ function renderReader() {
             <span class="swipe-pos">${S.respIdx + 1} / ${total}</span>
             <button class="swipe-btn" id="nextResp" ${S.respIdx >= total - 1 ? 'disabled' : ''} title="다음 응답">›</button>
         </div>` : '';
+
+    const transToggle = hasTrans ? `
+        <button class="trans-toggle ${S.showTrans ? 'on' : ''}" id="transToggle" title="원문/번역 전환">
+            🌐 ${S.showTrans ? '원문 보기' : '번역 보기'}
+        </button>` : '';
 
     content.innerHTML = `
         <div class="reader">
@@ -348,7 +385,10 @@ function renderReader() {
 
             <div class="resp-bar">
                 <div class="section-label" style="margin:0;">응답</div>
-                ${swipe}
+                <div class="resp-tools">
+                    ${transToggle}
+                    ${swipe}
+                </div>
             </div>
             ${answerHtml}
         </div>`;
@@ -356,6 +396,7 @@ function renderReader() {
     $('backBtn').addEventListener('click', () => { S.simId = null; renderMain(); });
     $('prevResp')?.addEventListener('click', () => { if (S.respIdx > 0) { S.respIdx--; renderReader(); } });
     $('nextResp')?.addEventListener('click', () => { if (S.respIdx < total - 1) { S.respIdx++; renderReader(); } });
+    $('transToggle')?.addEventListener('click', () => { S.showTrans = !S.showTrans; renderReader(); });
 }
 
 /* ---------------- 랜딩/에러/토스트 ---------------- */

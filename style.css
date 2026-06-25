@@ -238,7 +238,12 @@ code { font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace; font-si
 .list-title { font-size: 19px; font-weight: 700; margin: 0; }
 .list-meta { color: var(--text-dim); font-size: 13px; }
 
-.cards { display: flex; flex-direction: column; gap: 12px; max-width: 880px; }
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+    gap: 12px;
+    align-items: start;
+}
 
 .card {
     border: 1px solid var(--border);
@@ -353,15 +358,22 @@ code { font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace; font-si
 .swipe-btn:disabled { opacity: 0.35; cursor: default; }
 .swipe-pos { font-size: 13px; color: var(--text-dim); min-width: 56px; text-align: center; }
 
-/* 응답 본문 */
+/* 응답 본문 (패널로 감싸 가독성/구조감 부여) */
 .answer {
     font-family: var(--font-read);
-    font-size: 16px;
-    line-height: 1.85;
+    font-size: 14.5px;
+    line-height: 1.72;
     color: var(--text);
     word-break: break-word;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    box-shadow: var(--shadow);
 }
-.answer p { margin: 0 0 1em; }
+.answer > :first-child { margin-top: 0; }
+.answer > :last-child { margin-bottom: 0; }
+.answer p { margin: 0 0 0.9em; }
 .answer blockquote {
     margin: 0 0 1em; padding: 2px 16px;
     border-left: 3px solid var(--border);
@@ -385,7 +397,7 @@ code { font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace; font-si
 
 .part-divider {
     display: flex; align-items: center; gap: 12px;
-    margin: 30px 0 22px;
+    margin: 22px 0 16px;
     color: var(--text-faint);
     font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
     font-family: var(--font-ui);
